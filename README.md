@@ -4,6 +4,15 @@ Skills para trabajar con **spec-driven development** junto a un agente de IA: de
 
 Son independientes del lenguaje, del framework, del sistema operativo y del agente: funcionan en Claude Code, Codex, OpenCode, Antigravity y cualquier agente compatible con el formato `SKILL.md`.
 
+## Por qué
+
+Las reglas del proyecto (`AGENTS.md`, `CLAUDE.md`…) le dicen al agente *cómo* trabajar, pero no *qué* construir. Para eso suele quedar el prompt, y el prompt tiene dos problemas:
+
+- **Se olvida.** Lo que se decidió en una feature anterior hay que volver a explicarlo, o esperar que el agente lo encuentre leyendo código.
+- **Nadie lo compara con el resultado.** Si la implementación se desvía, no queda registro, y el mismo error se repite.
+
+En spec-loop el agente escribe la spec leyendo el repo, implementa contra ella, anota en qué se desvió, y la spec queda en `specs/` como contexto para la siguiente. No es un prompt de un solo uso: es historia que se consulta.
+
 ## El ciclo
 
 ```
@@ -22,6 +31,12 @@ Son independientes del lenguaje, del framework, del sistema operativo y del agen
 | `spec-impl` | Implementa una spec **Aprobada** en su rama, paso a paso o de corrido (`--auto`), y la cierra: criterios, memoria del proyecto, desviaciones y estado. |
 | `spec-areas` | Adopta o reorganiza el vocabulario de áreas, para que `/spec` lea el contexto por tema y no por fecha. |
 | `spec-retro` | Junta las desviaciones de las specs cerradas y propone cambios a las skills cuando una causa se repite. |
+
+## Cuándo usarlo
+
+Para features que tocan lógica que vas a querer recordar después. Un fix de una línea o un cambio de texto no necesitan spec: pídeselo al agente directamente.
+
+Cuánto revisar lo decides tú. `/spec` siempre pregunta, pero cada pregunta trae una opción recomendada y cada sección te dice qué decidió sin preguntarte: puedes leer todo con calma o aceptar lo recomendado. Lo que no cambia: la spec queda en `Borrador` hasta que tú la pasas a `Aprobado`, y `/spec-impl` no implementa otra cosa.
 
 ## Requisitos
 
