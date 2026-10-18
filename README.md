@@ -1,0 +1,99 @@
+# spec-loop
+
+Skills para trabajar con **spec-driven development** junto a un agente de IA: definir antes de codear, implementar contra un contrato y aprender de cada desviación.
+
+Son independientes del lenguaje, del framework, del sistema operativo y del agente: funcionan en Claude Code, Codex, OpenCode, Antigravity y cualquier agente compatible con el formato `SKILL.md`.
+
+## El ciclo
+
+```
+/spec-areas ──► /spec ──► /spec-impl ──► /spec-retro
+ (una vez)       │            │               │
+                 ▼            ▼               ▼
+            specs/ID.md   código + cierre   mejoras al
+            (Borrador)    (Implementado)    proceso
+                 ▲                            │
+                 └────────────────────────────┘
+```
+
+| Skill | Qué hace |
+| --- | --- |
+| `spec` | Hace triaje del pedido, pregunta lo que falta y escribe la spec sección por sección en `specs/`. No escribe código. |
+| `spec-impl` | Implementa una spec **Aprobada** en su rama, paso a paso o de corrido (`--auto`), y la cierra: criterios, memoria del proyecto, desviaciones y estado. |
+| `spec-areas` | Adopta o reorganiza el vocabulario de áreas, para que `/spec` lea el contexto por tema y no por fecha. |
+| `spec-retro` | Junta las desviaciones de las specs cerradas y propone cambios a las skills cuando una causa se repite. |
+
+## Requisitos
+
+- **git**: las skills leen ramas y estado del repo.
+- **Node.js**: `spec` incluye `scripts/specs-index.mjs`, que regenera `specs/INDEX.md`. No tiene dependencias.
+
+## Instalación
+
+Con el CLI de [skills.sh](https://skills.sh) (usa `npx` o el equivalente de tu gestor: `pnpm dlx`, `bunx`…):
+
+```bash
+# En el proyecto actual, para los agentes que elijas
+npx skills add czabala847/spec-loop
+
+# Para agentes concretos
+npx skills add czabala847/spec-loop -a claude-code -a codex -a opencode -a antigravity
+
+# Global (disponible en todos tus proyectos)
+npx skills add czabala847/spec-loop -g
+
+# Solo algunas skills
+npx skills add czabala847/spec-loop --skill spec --skill spec-impl
+```
+
+El CLI instala cada skill donde la busca cada agente y, por defecto, usa symlinks a una única copia.
+
+### Actualizar
+
+```bash
+npx skills update
+```
+
+Las skills instaladas son una copia: **no las edites en el proyecto**, porque la próxima actualización pisa el cambio. Los ajustes propios de un repo van en su archivo de memoria (`AGENTS.md`, `CLAUDE.md`…); las mejoras generales, en este repo.
+
+## Configurar el proyecto
+
+Las skills no asumen ningún stack. Lo que necesitan del proyecto lo leen de su **archivo de memoria**, el primero que exista de `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `README.md`:
+
+- Qué comandos puede correr el agente y cuáles son solo del dev.
+- Cómo se verifica el proyecto: lint, tipos, tests (completos y focalizados).
+- Cómo obtener diagnósticos del IDE, si hay forma.
+- Dónde están los docs.
+
+Ejemplo mínimo:
+
+```md
+## Verificación de código
+
+- Comandos permitidos al agente: `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm test:run`.
+- Tests focalizados: `pnpm exec vitest run <ruta>`.
+- Solo del dev: `pnpm db:push`, cualquier deploy.
+```
+
+Si el archivo no dice cómo se verifica, las skills deducen la herramienta solo cuando es obvia; si no, preguntan.
+
+## Uso
+
+```
+/spec reintentos de pago        → specs/20261014-reintentos-de-pago.md (Borrador)
+                                  (lo relees y lo cambias a Aprobado a mano)
+/spec-impl reintentos-de-pago   → rama, implementación, cierre
+/spec-retro                     → cuando /spec-impl avise que hay ~10 specs sin retro
+```
+
+En agentes sin comandos con `/`, pídele que use la skill por su nombre (por ejemplo, "usa la skill spec-impl con reintentos-de-pago").
+
+Campos como `disable-model-invocation` o `allowed-tools` en el frontmatter son de Claude Code; los demás agentes los ignoran sin problema.
+
+## Créditos
+
+Inspirado en [fernando-skills](https://github.com/Klerith/fernando-skills) de Fernando Herrera (MIT). `spec` y `spec-impl` partieron de esa idea y fueron reescritas para este flujo; `spec-areas` y `spec-retro` son nuevas.
+
+## Licencia
+
+[MIT](LICENSE)
