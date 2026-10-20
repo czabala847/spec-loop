@@ -10,6 +10,12 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). V
 
 ## [1.0.0] - 2026-10-18
 
+### Cambiado
+
+- README: secciones "Por qué" (el problema que resuelve) y "Cuándo usarlo" (qué tareas no necesitan spec y cuánto revisar). Parche.
+
+## [1.0.0] - 2026-10-18
+
 ### Agregado
 
 - `spec`: triaje del pedido, preguntas de aclaración, control de tamaño y escritura sección por sección. Incluye `template.md` y `scripts/specs-index.mjs`.
