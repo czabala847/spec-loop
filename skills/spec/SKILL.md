@@ -88,7 +88,7 @@ Si el usuario insiste en que se haga exactamente como lo escribió, respétalo �
 
 El pedido plantea un problema o un comportamiento deseado, no dicta la implementación, y ya puedes escribir a partir de él al menos un criterio de aceptación booleano.
 
-**Si une con "y" dos comportamientos que, cada uno por separado, son C**, divídelo aquí, antes de cualquier pregunta: presenta la tabla de división del control de tamaño (Fase 2) y pregunta cuál se escribe ahora. Las fases siguientes trabajan solo sobre esa parte. Esperar al control de tamaño significa hacer preguntas sobre una parte que no se va a escribir.
+**Si une con "y" dos comportamientos que, cada uno por separado, son C**, no lo dividas aquí: dilo en una línea (`Corte candidato: <parte 1> / <parte 2>. Lo decide el control de tamaño.`) y continúa. La "y" dice dónde podría cortarse, no si conviene: eso depende de lo que cuesta cada parte, y esta fase solo ve cómo está escrito el pedido. "Listar pedidos y filtrarlos por fecha" es una spec; "perfil con cambio de contraseña" pueden ser dos aunque no lleve "y".
 
 ### Fase 1 — Entender el contexto
 
@@ -113,6 +113,8 @@ Si el argumento con que se invocó la skill (`$ARGUMENTS` en Claude Code) llega 
 Esta es la fase más importante del comando. Tu trabajo aquí es **detectar ambigüedades y preguntar**, no asumir.
 
 Haz preguntas en bloques de 3 a 5 a la vez (no una sola pregunta seguida de otra sola pregunta — eso agota). Después de cada bloque, espera respuesta antes de continuar.
+
+**Si la Fase 0 marcó un corte candidato** (o ves uno ahora), el primer bloque pregunta solo lo que decide la división: qué entra en cada parte y de qué sistemas externos depende cada una (backend, IdP, terceros) y si eso está verificado. Así no preguntas en detalle por una parte que quizá no se escriba.
 
 **Categorías de preguntas que siempre deberías considerar:**
 
@@ -143,17 +145,21 @@ Si todavía no puedes responder alguna, sigue preguntando.
 
 **Control de tamaño — mide antes de escribir una sola sección.**
 
-Una vez que puedas responder las tres preguntas de arriba, mide la feature. El control se dispara si **cualquier** fila es verdadera:
+Mide la feature al cerrar cada bloque de preguntas, no solo al final: dispárala en cuanto una fila sea verdadera, sin esperar a las demás. La fila de bloqueo suele conocerse desde el primer bloque; los pasos y los criterios, cuando ya puedes responder las tres preguntas de arriba. El control se dispara si **cualquier** fila es verdadera:
 
 | Señal | Umbral |
 | --- | --- |
-| El objetivo necesita "y" para unir dos comportamientos distintos | más de 1 comportamiento |
+| Partes del pedido que dependen de un supuesto externo sin verificar (backend, IdP, tercero) que otra parte no necesita | 1 o más |
 | Pasos que va a tener el plan de implementación | más de 8 |
 | Módulos del proyecto (unidad de código con frontera propia: módulo, paquete, feature, app) con **decisiones de diseño propias** (un módulo donde la spec solo aplica un patrón ya decidido en la misma spec no cuenta) | más de 2 |
 | Dominios distintos con decisiones abiertas (estructura, estado, apariencia, sesión, red…) | más de 2 |
 | Criterios de aceptación que va a tener | más de 20 |
 
-Un cambio que aplica el mismo patrón en varios módulos cuenta como un solo módulo. El tamaño lo deciden los pasos, los criterios de aceptación y las decisiones abiertas, no cuántas carpetas se tocan.
+Un cambio que aplica el mismo patrón en varios módulos cuenta como un solo módulo. El tamaño lo deciden los pasos, los criterios de aceptación y las decisiones abiertas, no cuántas carpetas se tocan, ni cuántas "y" tiene el pedido.
+
+La fila de bloqueo existe porque juntas, la parte que no depende de nada queda detenida hasta que se verifique el supuesto de la otra: no se aprueba, no se verifica y no se cierra.
+
+**Dónde se corta.** Cada parte tiene que valer como spec propia: al menos un criterio de aceptación booleano propio, y entregarla sin las demás no deja el producto roto. Busca el corte primero donde lo marcó la "y" o la fila de bloqueo. Si se pasa un umbral pero no hay un corte así entre comportamientos, corta en entregas incrementales del mismo comportamiento (p. ej. primero el caso feliz, después los estados de error).
 
 Cuando se dispara, **no preguntes si dividir**. Presenta la división y pregunta cuál se escribe ahora:
 
