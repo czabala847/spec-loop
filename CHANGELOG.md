@@ -2,6 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado [SemVer](https://semver.org/lang/es/): un cambio que obliga a migrar specs existentes o el archivo de memoria del proyecto es **mayor**; una regla o fase nueva es **menor**; una corrección de redacción es **parche**.
 
+## [1.5.0] - 2026-10-27
+
+### Cambiado
+
+- `spec-consolidar`: también atiende áreas sin doc. Cubre el hueco de las áreas con muchas specs vigentes que nunca tenían doc, porque solo nacía al cerrar una spec que dejara algo para conservar. Decide con cuatro filtros si hace falta un doc: pesa (5 o más vigentes o es transversal), no cabe en el archivo de memoria, no cabe como sección de un doc existente, y se paga solo (si entró por acumular, la fila tiene que bajar de 5 vigentes). Antes que un archivo nuevo, prefiere asignar un doc existente o una sección de uno. El borrador se escribe desde los puntos de entrada del código y pasa por la misma validación y poda que un doc existente.
+- `spec-consolidar`: el código solo puede contradecir lo que muestra. Lo que depende de un sistema externo (un backend, un servicio de terceros) no se corrige ni se poda por no aparecer en el repo: se reporta como "no verificable desde el código". Los hechos externos verificados, con su fecha, y los supuestos sin verificar, marcados como tales, se quedan en el doc. Una decisión sobre un sistema externo ya no se toma por reemplazo mal marcado.
+- `spec-impl`: ya no crea docs. Si el área no tiene doc, solo propone asignarle uno existente; al cerrar, avisa que se corra `/spec-consolidar` cuando el área tiene 5 o más vigentes, tenga doc o no.
+- `spec`: el criterio para darle doc a un área pasa de `spec-impl/references/doc-nuevo.md` a `spec/references/doc-nuevo.md`, porque ahora lo usa `spec-consolidar`.
+- `spec-areas` y README: remiten a `/spec-consolidar` para las áreas sin doc con 5 o más specs vigentes.
+
 ## [1.4.0] - 2026-10-27
 
 ### Cambiado

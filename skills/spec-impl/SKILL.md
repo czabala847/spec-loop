@@ -314,15 +314,15 @@ Para cada decisión o convención que terminó en el código, decide **si se con
 | Convención de capas, contrato entre capas, estructura de carpetas, traducciones, o cualquier tema que el repo ya tenga documentado aparte | El doc del proyecto que ya cubre ese tema (los que nombran el archivo de memoria y la tabla de áreas) |
 | Una regla o trampa que aplica a **cualquier** sesión, en cualquier módulo, y pasó las cuatro preguntas | El archivo de memoria del proyecto |
 
-**Si el área de la spec tiene `—` como doc vigente** y algo pasó el filtro, sigue `references/doc-nuevo.md` (en este directorio) antes de proponer.
+**Si el área de la spec tiene `—` como doc vigente** y algo pasó el filtro, no fuerces lo aprendido en un doc ajeno. Si un doc del proyecto ya describe el área (o una sección de uno), propón asignárselo en la celda "Doc vigente" de la tabla de áreas y que lo aprendido vaya ahí. Si no hay ninguno, lo aprendido se queda en la sección "Decisiones" de la spec: aquí no se crean docs. Si el área necesita uno lo decide `/spec-consolidar`, con el criterio de `doc-nuevo.md` (`../spec/references/doc-nuevo.md`, relativo a este directorio); el aviso va en 5.4.
 
 Una entrada en un doc recibe un puntero de una línea en el archivo de memoria del proyecto **solo** si un agente, de otro modo, caería en la trampa sin abrir nunca ese doc. Para todo lo demás, el puntero existente al doc es suficiente.
 
-**Si no hay nada que proponer** (ninguna entrada, ninguna poda, ningún doc nuevo), dilo en una línea y sigue a 5.3 sin preguntar:
+**Si no hay nada que proponer** (ninguna entrada, ninguna poda, ninguna asignación de doc), dilo en una línea y sigue a 5.3 sin preguntar:
 
 > Nada pasa el filtro: [motivo en una línea de los descartes notables, p. ej. "la prop `side` del drawer — visible en el componente"].
 
-**Si hay algo**, propón, no escribas todavía. Entradas, podas y doc nuevo van en **una sola lista numerada** con una sola pregunta al final:
+**Si hay algo**, propón, no escribas todavía. Entradas, podas y asignación de doc van en **una sola lista numerada** con una sola pregunta al final:
 
 > De esta spec:
 >
@@ -379,7 +379,7 @@ Todo este paso se hace sin preguntar, salvo el `Área` cuando falta, no encaja o
 - Un reemplazo parcial lleva la palabra `parcial` en los dos lados (`20261014-reintentos-de-pago (parcial: …)`); uno total, no. El índice usa esa palabra para decidir si la spec vieja sigue entre las vigentes de su área: si la omites en un reemplazo parcial, la parte que sigue en pie desaparece del contexto de la próxima `/spec`.
 - Si la spec tiene una tabla de Supuestos externos, actualízala. Lo que la implementación realmente verificó recibe su estado, su fecha y cómo se verificó. Lo que sigue sin verificar queda sin verificar — terminar la feature no es evidencia.
 - Ejecuta `node <ruta-de-la-skill-spec>/scripts/specs-index.mjs` (la skill `spec` es hermana de esta: `../spec/scripts/specs-index.mjs` relativo a este directorio) desde la raíz del repo para regenerar `specs/INDEX.md`: el índice recoge el estado, la rama, el área, supera a / superada por y consolidada en, y la tabla "Specs vigentes por área" se reordena. `INDEX.md` es un archivo generado; `specs/README.md` (el vocabulario de áreas) no lo toca el script, salvo crearlo si falta. Si la salida tiene `⚠ área desconocida`, `⚠ header incompleto`, `⚠ referencia desconocida` o `⚠ doc inexistente` en alguna fila de esta spec, corrígelo antes de seguir. Si avisa `⚠ slug repetido` con esta spec, dilo: puede ser la misma feature escrita dos veces.
-- En la salida del script, mira la fila de cada área de esta spec en "Specs vigentes por área". Si el área tiene doc vigente y 5 o más specs vigentes, agrega una línea: `El área <área> tiene N specs vigentes y /spec lee 4: cuando quieras, corre /spec-consolidar <área>.` Solo el aviso; nunca la ejecutes. Si el área no tiene doc, ya lo cubrió `references/doc-nuevo.md` en 5.2.
+- En la salida del script, mira la fila de cada área de esta spec en "Specs vigentes por área". Si el área tiene 5 o más specs vigentes, agrega una línea: con doc vigente, `El área <área> tiene N specs vigentes y /spec lee 4: cuando quieras, corre /spec-consolidar <área>.`; con `—`, `El área <área> tiene N specs vigentes y no tiene doc: cuando quieras, corre /spec-consolidar <área> para ver si le hace falta uno.` Solo el aviso; nunca la ejecutes.
 - Cuenta los archivos de `specs/` que tienen la línea `> Retro: pendiente` (por contenido, no por nombre de spec), buscando `^> Retro: pendiente` por la vía del bloque **Lectura y búsqueda** (con `git grep`, usa `-l`) y contando los archivos. Si son 10 o más, agrega una línea: `Van N specs cerradas sin retro: cuando quieras, corre /spec-retro.` Solo el aviso; nunca la ejecutes.
 
 #### 5.5 — Commit

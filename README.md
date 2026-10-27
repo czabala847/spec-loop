@@ -22,7 +22,7 @@ Por cada feature:   /spec ──► /spec-impl
 
 Mantenimiento, cuando un aviso lo pide:
   /spec-areas       ordena el vocabulario de áreas (una vez al adoptar; después, revisión)
-  /spec-consolidar  pasa al doc de un área lo que sus specs siguen decidiendo
+  /spec-consolidar  pasa al doc de un área lo que sus specs siguen decidiendo (y le crea uno si le hace falta)
   /spec-retro       mejora las skills a partir de las desviaciones
 ```
 
@@ -32,9 +32,9 @@ Mantenimiento, cuando un aviso lo pide:
 | `spec-impl` | Implementa una spec **Aprobada** en su rama, paso a paso o de corrido (`--auto`), y la cierra: criterios, memoria del proyecto, desviaciones y estado. |
 | `spec-areas` | Adopta o reorganiza el vocabulario de áreas, para que `/spec` lea el contexto por tema y no por fecha. |
 | `spec-retro` | Junta las desviaciones de las specs cerradas y propone cambios a las skills cuando una causa se repite. |
-| `spec-consolidar` | Pone al día el doc de un área con el código (corrige lo desactualizado y poda lo que el código ya dice), y después marca las specs que ese doc ya cubre, para que `/spec` lea solo lo que el doc no dice. |
+| `spec-consolidar` | Pone al día el doc de un área con el código (corrige lo desactualizado y poda lo que el código ya dice), y después marca las specs que ese doc ya cubre, para que `/spec` lea solo lo que el doc no dice. Si el área no tiene doc, decide si le hace falta uno y, solo entonces, lo escribe validado contra el código. |
 
-**Cómo se arma el contexto.** Antes de preguntar, `/spec` lee del área del pedido el doc vigente (cómo funciona hoy) y hasta 4 specs vigentes (qué se decidió y qué quedó pendiente). Las specs que ya están escritas en el doc se marcan `Consolidada en` y dejan de leerse, así esas 4 son las que dicen algo que el doc no dice. Al cerrar, `/spec-impl` propone un doc si el área no tiene; si ya tiene y se juntan 5 o más specs vigentes, avisa que corras `/spec-consolidar`.
+**Cómo se arma el contexto.** Antes de preguntar, `/spec` lee del área del pedido el doc vigente (cómo funciona hoy) y hasta 4 specs vigentes (qué se decidió y qué quedó pendiente). Las specs que ya están escritas en el doc se marcan `Consolidada en` y dejan de leerse, así esas 4 son las que dicen algo que el doc no dice. Al cerrar, si un área junta 5 o más specs vigentes, `/spec-impl` avisa que corras `/spec-consolidar`, tenga doc o no. Un doc nuevo solo nace si el área lo justifica: antes se prefiere un doc existente o una sección de uno.
 
 ## Cuándo usarlo
 
@@ -103,7 +103,7 @@ Si el archivo no dice cómo se verifica, las skills deducen la herramienta solo 
                                   (lo relees y lo cambias a Aprobado a mano)
 /spec-impl reintentos-de-pago   → rama, implementación, cierre
 /spec-retro                     → cuando /spec-impl avise que hay ~10 specs sin retro
-/spec-consolidar login          → cuando /spec-impl avise que un área con doc tiene 5+ specs vigentes
+/spec-consolidar login          → cuando /spec-impl avise que un área tiene 5+ specs vigentes
 ```
 
 En agentes sin comandos con `/`, pídele que use la skill por su nombre (por ejemplo, "usa la skill spec-impl con reintentos-de-pago").
