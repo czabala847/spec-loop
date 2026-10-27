@@ -82,6 +82,7 @@ Con el vocabulario existente y los headers, reporta solo lo que encuentres:
 - Áreas de la tabla que ninguna spec usa.
 - Áreas con más de ~15 specs vigentes (candidatas a dividir) o pares de áreas que siempre aparecen juntas (candidatas a fundir).
 - Áreas con `—` como doc vigente y 5 o más specs vigentes: ahí `/spec` está reconstruyendo el estado actual desde la historia, y un doc lo resolvería. Solo dilo: el doc lo propone `/spec-impl` la próxima vez que una spec cierre en esa área.
+- Áreas **con** doc vigente y 5 o más specs vigentes: las más viejas ya no llegan a `/spec`, y las más nuevas suelen repetir lo que el doc ya dice. Solo dilo: las revisa contra el doc `/spec-consolidar <área>`.
 - Reemplazos mal marcados: una spec cuyo `Supera a` dice "parcial" y la otra spec, en `Superada por`, no lo dice (o al revés). El índice usa la palabra `parcial` para decidir qué sigue vigente.
 - Referencias rotas: filas con `⚠ referencia desconocida` en `specs/INDEX.md` (un `Superada por` que apunta a un ID que no existe, p. ej. una spec que se renombró), y avisos `⚠ slug repetido` del script (dos specs con el mismo slug y distinta fecha: a veces la misma feature escrita dos veces).
 
