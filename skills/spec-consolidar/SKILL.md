@@ -1,6 +1,6 @@
 ---
 name: spec-consolidar
-description: 'Consolida las specs vigentes de un área en el doc vigente que ya tiene. Lee solo lo que `/spec` leería de cada spec (Decisiones y Fuera de alcance), lo compara con el doc y propone, con confirmación, las líneas que le faltan al doc y la marca `Consolidada en` de las specs que quedan cubiertas. De paso señala reemplazos mal marcados y áreas mal asignadas. Úsala cuando `/spec-impl` o `/spec-areas` avisen que un área con doc tiene 5 o más specs vigentes.'
+description: 'Consolida las specs vigentes de un área en el doc vigente que ya tiene, y deja ese doc al día con el código. Primero valida el doc contra el código (lo que nombra y ya no existe, lo que describe distinto) y lo poda de lo que el código ya dice o es historia, dentro de un tope de tamaño. Después lee solo lo que `/spec` leería de cada spec (Decisiones y Fuera de alcance), lo compara con el doc y propone, con confirmación, las líneas que faltan y la marca `Consolidada en` de las specs cubiertas. De paso señala reemplazos mal marcados y áreas mal asignadas. Úsala cuando `/spec-impl` o `/spec-areas` avisen que un área con doc tiene 5 o más specs vigentes, o cuando el doc de un área ya no se parezca al código.'
 disable-model-invocation: true
 argument-hint: '[área]'
 ---
@@ -9,11 +9,14 @@ argument-hint: '[área]'
 
 `/spec` lee el doc vigente de un área y, como mucho, 4 de sus specs vigentes, de la más nueva a la más vieja. Una spec deja de ser vigente cuando otra la reemplaza entera o cuando se marca `Consolidada en: <doc>`. Si el área ya tiene doc, nada más en el flujo propone esa marca. Por eso la fila del área en `specs/INDEX.md` solo crece: las 4 specs que se leen repiten lo que el doc ya dice, y las decisiones de la quinta en adelante dejan de leerse sin que nadie se entere. Esta skill revisa la fila contra el doc para que las specs vigentes sean solo las que tienen algo que el doc no dice.
 
+Marcar una spec `Consolidada en` le dice a `/spec` que confíe en el doc en vez de en la spec. Eso solo mejora el contexto si el doc es creíble. Por eso, antes de consolidar, esta skill pone el doc al día: **la fuente de la verdad es el código**. El doc dice cómo funciona hoy el área y por qué no de la forma obvia; no es un historial de specs ni una copia del código. Un doc que nombra archivos que ya no existen, o que crece con cada spec, termina igual que la fila de specs que vino a reemplazar.
+
 Las áreas **sin** doc no son de esta skill. Para esas, el doc nuevo lo propone `/spec-impl` al cerrar (`../spec-impl/references/doc-nuevo.md`, relativo al directorio de esta skill).
 
 **Aquí no se escribe código de la aplicación.** Lo único que esta skill toca, siempre con confirmación, es:
 
-- El doc vigente del área: las líneas que le faltan para cubrir una spec.
+- El doc vigente del área: las correcciones para que coincida con el código, la poda de lo que sobra y las líneas que le faltan para cubrir una spec.
+- Las referencias `§N` a ese doc (en `specs/README.md`, en las specs y en el archivo de memoria del proyecto), solo si una sección cambia de número o desaparece.
 - El header de cada spec: `Consolidada en`, y `Supera a` / `Superada por` cuando un reemplazo está mal marcado. Nada más del header (ni `Área` ni `Estado`) y nada del cuerpo.
 
 `specs/INDEX.md` es un archivo generado: se regenera con el script, nunca se edita a mano.
@@ -32,7 +35,7 @@ Responde en el idioma del repo (el de las specs existentes).
 
 ## Fase 1 — Elegir el área
 
-1. El archivo de memoria del proyecto, si existe: el primero de `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `README.md`. Si tu agente ya lo cargó al iniciar la sesión, no lo releas. Ahí están las reglas del repo sobre comandos y docs.
+1. El archivo de memoria del proyecto, si existe: el primero de `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `README.md`. Si tu agente ya lo cargó al iniciar la sesión, no lo releas. Ahí están las reglas del repo sobre comandos y docs, y el tope de líneas de un doc si el repo declara uno.
 2. Si `specs/INDEX.md` no existe, dilo y detente: sin índice no hay fila de vigentes que revisar (lo genera `/spec-impl` al cerrar o `/spec-areas`).
 3. **Con argumento:** saca solo la fila de esa área con una búsqueda de `^\| <área> \|` en `specs/INDEX.md` (con `git grep`, la ruta es `-- specs/INDEX.md`). Nunca leas `INDEX.md` entero.
 4. **Sin argumento:** busca `^\| ` en `specs/INDEX.md`, quédate con las filas de la tabla "Specs vigentes por área" (las que tienen 5 columnas) y lista las áreas con doc vigente y 5 o más specs vigentes, de la que más tiene a la que menos: `N. <área> — <doc> — M vigentes`. Si no hay ninguna, dilo en una línea y detente. Si hay, pregunta cuál revisas y espera respuesta.
@@ -40,16 +43,50 @@ Responde en el idioma del repo (el de las specs existentes).
 
 **Una sola área por corrida.** Revisar una fila de 12 specs ya cuesta varios cientos de líneas de lectura; dos áreas a la vez agotan el contexto antes de proponer nada.
 
-## Fase 2 — Leer lo que `/spec` leería
+## Fase 2 — Poner el doc al día con el código
+
+Aquí sí se lee el doc vigente **entero**: validarlo y podarlo exige verlo todo. Por eso es una sola área por corrida.
+
+### 2.1 Validar contra el código
+
+Gana el código. Dos niveles, del barato al caro:
+
+1. **Lo que el doc nombra, en todo el doc.** Saca del doc los nombres concretos: rutas de archivo, símbolos (funciones, hooks, tipos, constantes), rutas de la app, variables de entorno, comandos. Búscalos en el repo con la búsqueda de texto de tu agente (o `git grep -n -F '<nombre>'`, sin limitar a `specs/`), agrupando varios nombres por búsqueda. Los que no aparecen están desactualizados: ubica qué los reemplazó (busca el comportamiento, no el nombre) y propón la corrección. Si no encuentras reemplazo, propón quitar esa parte y dilo.
+2. **Lo que el doc describe, solo donde hace falta.** El comportamiento (flujos, reglas, códigos de error, redirecciones) se compara con el código solo en las secciones que tocan las specs vigentes de la fila y en las que el punto 1 encontró algo roto. Lee los puntos de entrada con búsqueda de texto, nunca módulos enteros. Si el doc y el código no coinciden, propón reescribir esa parte como funciona hoy. Si no puedes decidir si el código está bien (puede ser un bug), no corrijas: pregúntalo.
+
+Lo que no verificaste no se marca como verificado: si una sección quedó fuera de los dos niveles, el reporte lo dice.
+
+### 2.2 Podar
+
+Un doc es caro: `/spec` lo lee antes de cada spec del área. Se queda solo con lo que el código no puede decir. Es el mismo filtro de `/spec-impl` 5.2 (`../spec-impl/SKILL.md`, primera pregunta: "¿un agente lo deduciría leyendo el código?"), aplicado al doc entero:
+
+| Sale (o se reduce) | Queda |
+| --- | --- |
+| Snippets de código: queda la regla y su porqué | Los porqués: por qué así y no de la forma obvia |
+| Diagramas que el código ya cuenta: pasan a una línea de flujo (`A → B → C`) | Las trampas: lo que rompe en silencio si no se sabe |
+| Rutas de archivo y nombres de helpers internos, salvo los puntos de entrada del área | Las decisiones descartadas que siguen en pie |
+| Lo histórico: renombres, "antes de la spec X", cómo era antes | Lo pendiente que una spec futura puede retomar |
+| Citas de specs repetidas en cada párrafo: una por sección alcanza | Recetas que no se deducen (p. ej. cómo reproducir un estado en dev) |
+| Tablas con columnas que repiten el código (p. ej. "dónde se lee" una variable) | Lo que se agregue en esta corrida para consolidar |
+
+**Tope de tamaño:** el que declare el archivo de memoria del proyecto o, si no declara ninguno, **~500 líneas** por doc. Si el doc ya lo pasa, o lo pasaría con las líneas de la Fase 4, la poda deja de ser opcional: propón también qué condensar dentro de lo que queda.
+
+Al podar:
+
+- **Nunca saques lo que sostiene a una spec ya `Consolidada en` este doc.** Si una poda lo tocaría, esa parte se condensa, no se borra.
+- **Mantén la numeración de secciones.** Si una sección desaparece o se funde con otra, busca las referencias `<doc> §N` (en `specs/README.md`, en las specs y en el archivo de memoria) y propón actualizarlas en la misma lista.
+- Respeta los finales de línea que ya tenga el doc (CRLF o LF).
+
+## Fase 3 — Leer lo que `/spec` leería
 
 Esta skill lee lo mismo que leería `/spec` (Fase 1, paso 5), pero de todas las vigentes y no solo de 4. Así el veredicto mide justo lo que se perdería.
 
 1. **Las specs vigentes de la fila**, incluidas las marcadas `(parcial → X)`. Las "Reemplazadas enteras" y las ya "Consolidadas en un doc" no se leen.
 2. **De cada spec, solo:** el header, la sección **Decisiones tomadas y descartadas** y lo que quedó **fuera de alcance** (el bloque "Fuera de alcance" de `Alcance` y la sección final de lo que no entra). Ubica `^## ` y lee solo esos rangos. Nunca el plan, los criterios ni las desviaciones.
-3. **Del doc vigente:** sus encabezados primero; después, solo las secciones que nombran a esas specs (busca sus slugs en el doc) o que tratan lo mismo que sus decisiones. No leas el doc entero si es largo.
-4. Si una spec es `(parcial → X)`, lo que reemplazó X ya no sigue en pie: no hace falta en el doc. Lee el header de X solo si el texto del `Superada por` no dice qué parte se reemplazó.
+3. Si una spec es `(parcial → X)`, lo que reemplazó X ya no sigue en pie: no hace falta en el doc. Lee el header de X solo si el texto del `Superada por` no dice qué parte se reemplazó.
+4. **"Sigue en pie" lo decide el código.** Si una decisión de una spec ya no se ve en el código (lo que decidía fue borrado o rehecho), no se pasa al doc: es un posible reemplazo mal marcado (Fase 4, ⚠).
 
-## Fase 3 — Veredicto por spec
+## Fase 4 — Veredicto por spec
 
 El criterio es el del campo `Consolidada en` en `template.md` (`../spec/template.md`, relativo al directorio de esta skill): una spec queda consolidada solo si **todo** lo que `/spec` leería de ella y sigue en pie está en el doc.
 
@@ -70,21 +107,27 @@ Muestra una tabla con todas las vigentes, de la más nueva a la más vieja:
 - **⚠ No es de consolidación.** Son problemas que aparecen al leer, y se reportan aunque no se consoliden:
   - **Reemplazo mal marcado:** una spec vigente cuyo contenido ya no describe nada (otra spec borró o rehízo todo lo que decidía), o un `parcial` que en realidad fue total. Propón el `Superada por` correcto y su par `Supera a` en la otra spec.
   - **Área mal asignada:** las decisiones son de otra área. No la cambies: remite a `/spec-areas`.
-  - **El doc contradice a la spec:** dilo. No consolides esa spec hasta que el dev diga cuál de los dos está al día (si hace falta, el código decide).
+  - **El doc contradice a la spec:** decide el código. Si el código le da la razón al doc, lo de la spec ya no sigue en pie (posible reemplazo mal marcado); si se la da a la spec, el doc se corrige en la Fase 5. Si el código no lo deja claro, no consolides esa spec y pregúntalo.
 
 Debajo, una línea con el resultado: `La fila de <área> baja de N a M vigentes; hacen falta K líneas en <doc> y L correcciones de reemplazo.` Si casi ninguna es ✅ o 🟡, también es un resultado válido: dilo en una línea, sin forzar consolidaciones.
 
-## Fase 4 — Escribir con confirmación
+## Fase 5 — Escribir con confirmación
 
-Propón todo en **una sola lista numerada**, con una sola pregunta al final:
+Propón todo en **una sola lista numerada**, agrupada en este orden, con una sola pregunta al final. El doc no se muestra entero: las correcciones y las podas van resumidas por sección; las líneas nuevas, tal como quedarían escritas.
 
-> 1. A `<doc>` §N: [la línea, tal como quedaría escrita]. Cubre: <spec>.
-> 2. `Consolidada en: <doc>` en: <spec>, <spec>, <spec>.
-> 3. Reemplazo: `Superada por: <ID>` en <spec> y `Supera a: <spec>` en <ID>.
+> **Doc al día** (`<doc>`: N líneas → ~M)
+> 1. §8: nombra `sign-out.action.ts`, que ya no existe; hoy cerrar sesión es [cómo]. Se reescribe el párrafo.
+> 2. §3: sale el snippet de [archivo] y el diagrama de secuencia (queda una línea de flujo). −60 líneas.
+> 3. §7.1 se funde en §7; se actualiza `<doc> §7.1` en `specs/README.md`.
+>
+> **Consolidación**
+> 4. A `<doc>` §N: [la línea, tal como quedaría escrita]. Cubre: <spec>.
+> 5. `Consolidada en: <doc>` en: <spec>, <spec>, <spec>.
+> 6. Reemplazo: `Superada por: <ID>` en <spec> y `Supera a: <spec>` en <ID>.
 >
 > ¿Entran? (todas / los números / ninguna)
 
-- **Las líneas del doc** se escriben como el doc ya está escrito: cómo funciona hoy y por qué no de la forma obvia, no la historia de cómo se llegó. Pueden citar la spec de origen como lo haga el doc, y si no lo hace, como `(spec <ID>)`.
+- **Las líneas del doc**, nuevas o reescritas, dicen cómo funciona hoy y por qué no de la forma obvia, no la historia de cómo se llegó. Pueden citar la spec de origen como lo haga el doc, y si no lo hace, como `(spec <ID>)`, una vez por sección.
 - **Una spec 🟡 solo se marca si entran sus líneas.** Si el dev rechaza una línea, la spec que dependía de ella queda vigente: dilo al escribir.
 - **`Consolidada en`** va en la línea de `Supera a` / `Superada por` del header, con la ruta del doc vigente del área tal como figura en la tabla de áreas de `specs/README.md`. Respeta los finales de línea que ya tenga el archivo (CRLF o LF).
 
@@ -92,14 +135,17 @@ Después de escribir, corre `node <ruta-de-la-skill-spec>/scripts/specs-index.mj
 
 ## Cierre
 
-- Cuántas specs se consolidaron, cuántas quedaron vigentes y cuántas líneas entraron al doc.
+- El doc: cuántas líneas tenía y cuántas tiene, cuántas correcciones contra el código entraron, y qué secciones conviene que el dev relea (las más condensadas y las que no se verificaron contra el código).
+- Cuántas specs se consolidaron y cuántas quedaron vigentes.
 - Los ⚠ que quedaron para otra skill (áreas mal asignadas → `/spec-areas`).
 - **No hagas commit** ni propongas qué stagear.
 
 ## Reglas duras
 
 - **Nunca marques una spec sin que todo lo que sigue en pie esté en el doc.** Marcarla igual saca de `/spec` una decisión que nadie más tiene escrita, y nada avisa.
+- **Gana el código.** Nada entra al doc ni se queda en él si el código dice otra cosa. Si no está claro si el código está bien, se pregunta; no se corrige el doc a ciegas.
+- **El doc no es un historial.** Cómo funciona hoy y por qué; nunca cómo era antes, ni lo que el código ya dice solo.
 - **Nunca escribas sin confirmación**: ni el doc, ni los headers.
 - **De una spec, solo su header** (`Consolidada en`, `Supera a` / `Superada por`). Nunca su cuerpo, su `Área` ni su `Estado`.
-- **Nunca leas specs enteras.** Header, Decisiones y Fuera de alcance; nada más.
+- **Nunca leas specs enteras.** Header, Decisiones y Fuera de alcance; nada más. El doc sí se lee entero; el código, solo los fragmentos que hace falta comparar.
 - **Una sola área por corrida.**

@@ -336,6 +336,7 @@ Una entrada en un doc recibe un puntero de una línea en el archivo de memoria d
 
 Límites que mantienen esto sostenible:
 
+- **En un doc, reescribe; no apiles.** Si esta spec cambió algo que el doc ya describe, la propuesta reescribe esa parte para que diga cómo funciona hoy, y quita lo que esta spec dejó falso (un archivo borrado, una regla que cambió). Nunca un párrafo nuevo al lado del viejo, ni "antes era X, desde la spec Y es Z": eso convierte el doc en un historial, y para la historia están las specs.
 - **Una línea cada una** en el archivo de memoria del proyecto. Si no cabe en una línea, pertenece a un doc del proyecto.
 - **Nada de APIs de componentes, nombres de props ni recetas a nivel de archivo** en el archivo de memoria del proyecto. Ese es trabajo del código.
 - **Cero entradas es el resultado normal**, y el esperado para la mayoría de las specs. Proponer algo por haber propuesto algo es cómo ese archivo duplica su tamaño y deja de leerse.

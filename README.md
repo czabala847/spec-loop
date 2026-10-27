@@ -32,7 +32,7 @@ Mantenimiento, cuando un aviso lo pide:
 | `spec-impl` | Implementa una spec **Aprobada** en su rama, paso a paso o de corrido (`--auto`), y la cierra: criterios, memoria del proyecto, desviaciones y estado. |
 | `spec-areas` | Adopta o reorganiza el vocabulario de áreas, para que `/spec` lea el contexto por tema y no por fecha. |
 | `spec-retro` | Junta las desviaciones de las specs cerradas y propone cambios a las skills cuando una causa se repite. |
-| `spec-consolidar` | Revisa las specs vigentes de un área contra su doc, completa el doc y marca las que ya quedan cubiertas, para que `/spec` lea solo lo que el doc no dice. |
+| `spec-consolidar` | Pone al día el doc de un área con el código (corrige lo desactualizado y poda lo que el código ya dice), y después marca las specs que ese doc ya cubre, para que `/spec` lea solo lo que el doc no dice. |
 
 **Cómo se arma el contexto.** Antes de preguntar, `/spec` lee del área del pedido el doc vigente (cómo funciona hoy) y hasta 4 specs vigentes (qué se decidió y qué quedó pendiente). Las specs que ya están escritas en el doc se marcan `Consolidada en` y dejan de leerse, así esas 4 son las que dicen algo que el doc no dice. Al cerrar, `/spec-impl` propone un doc si el área no tiene; si ya tiene y se juntan 5 o más specs vigentes, avisa que corras `/spec-consolidar`.
 
