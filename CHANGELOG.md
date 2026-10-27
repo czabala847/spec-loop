@@ -2,6 +2,13 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado [SemVer](https://semver.org/lang/es/): un cambio que obliga a migrar specs existentes o el archivo de memoria del proyecto es **mayor**; una regla o fase nueva es **menor**; una corrección de redacción es **parche**.
 
+## [1.3.0] - 2026-10-27
+
+### Cambiado
+
+- `spec-consolidar`: antes de consolidar, pone el doc al día con el código, que es la fuente de la verdad. Valida lo que el doc nombra (archivos, símbolos, rutas, variables) en todo el doc, y el comportamiento en las secciones que tocan las specs de la fila. Poda lo que el código ya dice o es historia (snippets, diagramas, helpers internos, renombres) con un tope de ~500 líneas por doc, salvo que el archivo de memoria declare otro. Nunca saca lo que sostiene a una spec consolidada y actualiza las referencias `§N` si una sección cambia. "Sigue en pie" lo decide el código.
+- `spec-impl`: en 5.2, una entrada a un doc reescribe la parte que cambió en vez de agregar un párrafo al lado, para que el doc no se vuelva un historial.
+
 ## [1.2.0] - 2026-10-27
 
 ### Agregado
