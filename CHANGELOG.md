@@ -2,6 +2,19 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado [SemVer](https://semver.org/lang/es/): un cambio que obliga a migrar specs existentes o el archivo de memoria del proyecto es **mayor**; una regla o fase nueva es **menor**; una corrección de redacción es **parche**.
 
+## [1.2.0] - 2026-10-27
+
+### Agregado
+
+- `spec-consolidar`: revisa las specs vigentes de un área contra su doc vigente, propone las líneas que le faltan al doc y marca `Consolidada en` las que quedan cubiertas. También señala reemplazos mal marcados y áreas mal asignadas. Cubre el hueco de las áreas que ya tienen doc, donde la fila de vigentes solo crecía y `/spec` dejaba de leer las más viejas.
+
+### Cambiado
+
+- `spec`: el criterio de consolidación vive en `template.md` (campo `Consolidada en`) y aclara que solo cuenta lo que sigue en pie. `spec-impl/references/doc-nuevo.md` remite a él.
+- `spec-impl`: en 5.4, si un área de la spec cerrada tiene doc y 5 o más specs vigentes, avisa que se puede correr `/spec-consolidar`.
+- `spec-areas`: el modo revisión reporta las áreas con doc y 5 o más specs vigentes.
+- README: el ciclo separa el flujo de cada feature de las skills de mantenimiento, y explica cómo arma `/spec` su contexto (doc del área + hasta 4 specs vigentes).
+
 ## [1.1.0] - 2026-10-20
 
 ### Cambiado
