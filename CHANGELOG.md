@@ -2,6 +2,14 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado [SemVer](https://semver.org/lang/es/): un cambio que obliga a migrar specs existentes o el archivo de memoria del proyecto es **mayor**; una regla o fase nueva es **menor**; una corrección de redacción es **parche**.
 
+## [1.4.0] - 2026-10-27
+
+### Cambiado
+
+- `spec-areas`: la regla del vocabulario nombra las áreas-capa (`ui`, `components`…) y por qué no sirven: se llenan de specs que ya tienen otra área y desplazan a las relevantes en lo que lee `/spec`. Lo visual va al área de la pantalla o flujo donde se ve. Excepción: una capa con contrato y doc propio (p. ej. `api`).
+- `spec-areas`: el modo revisión detecta áreas-capa (más de la mitad de sus specs ya tienen otra área) y propone repartir sus specs y sacarla del vocabulario.
+- `spec` y `spec-impl`: al proponer un área nueva, aplican el mismo criterio para que un área-capa no vuelva a nacer.
+
 ## [1.3.0] - 2026-10-27
 
 ### Cambiado

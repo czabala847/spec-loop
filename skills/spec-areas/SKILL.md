@@ -58,7 +58,7 @@ Si `specs/README.md` ya tiene una tabla de índice escrita a mano fuera de los m
 
 A partir de los títulos y objetivos, propón entre 5 y 12 áreas. Reglas para que el vocabulario sirva:
 
-- **Un área es un comportamiento del producto que una spec futura va a volver a tocar**, no un módulo de código ni una capa. `facturacion`, `notificaciones` y `login` sí. `components`, `refactor` y `backend` no.
+- **Un área es un comportamiento del producto que una spec futura va a volver a tocar**, no un módulo de código ni una capa que toca todo. `facturacion`, `notificaciones` y `login` sí. `ui`, `components`, `refactor` y `backend` no: casi toda spec tiene algo visual o de backend, así que un área-capa se llena de specs que ya tienen otra área y le quita lugar a las relevantes en lo que `/spec` lee. Lo visual va al área de la pantalla o el flujo donde se ve. Excepción: una capa con contrato propio y un doc que lo describe (p. ej. `api` con su doc de API).
 - **Un nombre por concepto**, en minúsculas, en el idioma del repo, preferiblemente una palabra. Nada de sinónimos (`factura` vs `facturacion`), porque parten el área en dos y cada mitad esconde a la otra.
 - **Tamaño**: un área con más de ~15 specs es demasiado amplia (propón dividirla). Un área con 1 spec que ninguna futura va a tocar sobra (fúndela en otra).
 - **Doc vigente**: el doc del proyecto (y la sección, si aplica: `docs/<tema>.md §6`) que describe cómo funciona hoy esa área. `—` si ninguno lo hace. No lo inventes: se basa en los encabezados que leíste en la Fase 1.
@@ -80,6 +80,7 @@ Con el vocabulario existente y los headers, reporta solo lo que encuentres:
 
 - Specs sin `Área`, o con un área que no está en la tabla.
 - Áreas de la tabla que ninguna spec usa.
+- Áreas-capa: un área en la que más de la mitad de sus specs ya tienen otra área (p. ej. `ui`). Propón repartir sus specs y sacarla del vocabulario: a la que ya tiene otra área solo se le quita; la que decide comportamiento sin otra área va al área de su tema (nueva si hace falta); la puramente visual, al área de la pantalla donde se ve. Si el área cumple la excepción de capa con contrato y doc propio, no la señales.
 - Áreas con más de ~15 specs vigentes (candidatas a dividir) o pares de áreas que siempre aparecen juntas (candidatas a fundir).
 - Áreas con `—` como doc vigente y 5 o más specs vigentes: ahí `/spec` está reconstruyendo el estado actual desde la historia, y un doc lo resolvería. Solo dilo: el doc lo propone `/spec-impl` la próxima vez que una spec cierre en esa área.
 - Áreas **con** doc vigente y 5 o más specs vigentes: las más viejas ya no llegan a `/spec`, y las más nuevas suelen repetir lo que el doc ya dice. Solo dilo: las revisa contra el doc `/spec-consolidar <área>`.
